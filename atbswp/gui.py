@@ -37,7 +37,7 @@ class MainDialog(wx.Dialog, wx.MiniFrame):
 
     app_text = ["Load Capture", "Save", "Start/Stop Capture", "Play", "Compile to executable",
                 "Preferences", "Help"]
-    settings_text = ["Play &Speed: Fast", "&Infinite Playback", "Set &Repeat Count", "Recording &Hotkey",
+    settings_text = ["Play &Speed", "&Infinite Playback", "Set &Repeat Count", "Recording &Hotkey",
                      "&Playback Hotkey", "Always on &Top", "&Language", "&About", "&Exit"]
 
     def on_settings_click(self, event):
@@ -55,7 +55,6 @@ class MainDialog(wx.Dialog, wx.MiniFrame):
         self.Bind(wx.EVT_MENU,
                   control.SettingsCtrl.playback_speed,
                   ps)
-        ps.Enable(False)
 
         #  Infinite Playback
         cp = menu.AppendCheckItem(wx.ID_ANY, self.settings_text[1])

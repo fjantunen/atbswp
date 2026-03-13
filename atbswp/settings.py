@@ -51,6 +51,7 @@ try:
 except:
     CONFIG["DEFAULT"] = {
         "Fast Play Speed": False,
+        "Playback Speed Multiplier": 1.0,
         "Infinite Playback": False,
         "Repeat Count": 1,
         "Recording Hotkey": 348,

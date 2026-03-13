@@ -50,6 +50,7 @@ HEADER = (
     f"import pyautogui\n"
     f"import time\n"
     f"pyautogui.FAILSAFE = False\n"
+    f"pyautogui.PAUSE = 0\n"
 )
 
 LOOKUP_SPECIAL_KEY = {}
@@ -392,15 +393,42 @@ class PlayCtrl:
         self.count = settings.CONFIG.getint('DEFAULT', 'Repeat Count')
         self.infinite = settings.CONFIG.getboolean(
             'DEFAULT', 'Infinite Playback')
+        self.playback_multiplier = self.get_playback_multiplier()
         self.count_was_updated = False
         self.ThreadEndEvent, self.EVT_THREAD_END = NE.NewEvent()
+
+    @staticmethod
+    def get_playback_multiplier():
+        """Return a bounded playback speed multiplier from the config."""
+        try:
+            value = settings.CONFIG.getfloat('DEFAULT', 'Playback Speed Multiplier')
+        except Exception:
+            value = 1.0
+
+        if value < 0.1:
+            return 0.1
+        if value > 10.0:
+            return 10.0
+        return value
 
     def play(self, capture, toggle_button):
         """Play the loaded capture."""
         toggle_value = True
+        pyautogui.PAUSE = 0
         for line in capture:
             if self.play_thread.ended():
                 return
+
+            stripped_line = line.strip()
+            if stripped_line.startswith("time.sleep(") and stripped_line.endswith(")"):
+                try:
+                    delay = float(stripped_line[len("time.sleep("):-1])
+                    delay = max(0.0, delay / self.playback_multiplier)
+                    time.sleep(delay)
+                    continue
+                except ValueError:
+                    pass
+
             exec(line)
 
         if self.count <= 0 and not self.infinite:
@@ -419,6 +447,7 @@ class PlayCtrl:
         toggle_button.Parent.panel.SetFocus()
         self.infinite = settings.CONFIG.getboolean(
             'DEFAULT', 'Infinite Playback')
+        self.playback_multiplier = self.get_playback_multiplier()
         if toggle_button.Value:
             if not self.count_was_updated:
                 self.count = settings.CONFIG.getint('DEFAULT', 'Repeat Count')
@@ -485,9 +514,28 @@ class SettingsCtrl:
 
     @staticmethod
     def playback_speed(event):
-        """Replay the capture 2 times faster."""
-        # TODO: To implement
-        pass
+        """Configure playback speed multiplier."""
+        try:
+            current_value = settings.CONFIG.getfloat(
+                'DEFAULT', 'Playback Speed Multiplier')
+        except Exception:
+            current_value = 1.0
+
+        dialog = wx.NumberEntryDialog(
+            None,
+            message=(
+                "Choose a playback speed multiplier (e.g. 2.0 = twice faster)"
+            ),
+            prompt="",
+            caption="Playback Speed",
+            value=int(current_value * 10),
+            min=1,
+            max=100,
+        )
+        dialog.ShowModal()
+        new_value = dialog.Value / 10
+        dialog.Destroy()
+        settings.CONFIG['DEFAULT']['Playback Speed Multiplier'] = str(new_value)
 
     @staticmethod
     def infinite_playback(event):
