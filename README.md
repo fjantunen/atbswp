@@ -14,7 +14,31 @@ I've mainly used it to automate gold/point/XP farming in games, I think this can
 If you use it for something really cool you can always reach me at github (at) rmpr (dot) xyz or drop
 a PR :). Bonus points if you have a demo video.
 
+## Playback performance
+
+You can now tune playback speed from **Preferences → Play Speed** with a multiplier
+(0.1x to 10x). This accelerates recorded `time.sleep(...)` delays while keeping
+all recorded actions in their original order for stable macro execution.
+
 # Install instructions
+
+## Quick start (recommended)
+
+Use `pip` in a virtual environment so upgrades are simple and isolated:
+
+```shell
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install wxPython pyautogui pynput
+python atbswp/atbswp.py
+```
+
+On Linux you may still need GUI runtime packages first:
+
+- Debian/Ubuntu: `sudo apt install python3-tk python3-wxgtk4.0`
+- Fedora: `sudo dnf install python3-wxpython4 python3-tkinter`
+- Arch/Manjaro: `sudo pacman -S tk python-wxpython`
 
 ## Download
 
